@@ -16,19 +16,36 @@ class GameState extends Component {
         }
     }
   
+  componentDidMount(){
+    this.refs.m1.setActivityState(2);
+    this.refs.m1.setName("machine 1");
+    this.refs.m2.setActivityState(1);
+    this.refs.m2.setName("machine 2");
+    this.refs.m3.setActivityState(1);
+    this.refs.m3.setName("machine 3");
+    this.refs.m4.setActivityState(2);
+    this.refs.m4.setName("machine 4");
+    this.refs.m5.setActivityState(0);
+    this.refs.m5.setName("machine 5");
+  }
   	render(){
 		return(
 		<View style={ppstyle.contentTop}>
       
 			{/*Representation of the single Mashines*/}
-      <MashineComponent/>
-      <MashineComponent/>
+      <MashineComponent
+        ref="m1"/>
+      <MashineComponent
+        ref="m2"/>
 
-      <MashineComponent/>
+      <MashineComponent
+        ref="m3"/>
 
-      <MashineComponent/>
+      <MashineComponent
+        ref="m4"/>
 
-      <MashineComponent/>
+      <MashineComponent
+        ref="m5"/>
 
 		</View>
 

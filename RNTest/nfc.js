@@ -9,7 +9,7 @@ import {
     TouchableOpacity,
     Linking
 } from 'react-native';
-import {ppstyle} from '../style.js';
+import {ppstyle} from './style.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
 class NFCReader extends Component {

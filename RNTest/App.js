@@ -1,4 +1,4 @@
-//Navigator by https://reactnavigation.org/
+//landing.js
 
 import React, { Component } from 'react';
 import {
@@ -8,39 +8,176 @@ import {
   Button,
   Alert,
   ToastAndroid,
+  TouchableOpacity,
+  TextInput,
+  Image,
   View
 } from 'react-native';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 import {StackNavigator} from 'react-navigation';
 //Own Components
-import {BasicTextInput} from './BasicTextInput.js';
-import {NFCReader} from './nfc.js';
+
 import {ppstyle} from './style.js';
+//Testing Purpose
 import {PusherService} from './pusherservice.js';
+import {SocketService} from './sockettest.js';
 import {GameView} from './Game/gameview.js';
+import {LoginComponent} from './Game/loginComponent.js'
 
-const instructions = Platform.select({
-  		ios: 'Press Cmd+R to reload,\n' +
-    		 'Cmd+D or shake for dev menu',
-    	android: 'Double tap R on your keyboard to reload,\n' +
-    		 'Shake or press menu button for dev menu',
-	});
+class Landing extends React.Component {
+	static navigationOptions = {
+		header: null		
+	};
+		constructor(props){
+		super(props);
 
-	const welcomeText = Platform.select({
-  		ios: 'React Native Test \n' +
-  			 'Production Planning Games',
-  		android: 'React Native Test \n' +
-  			 'Production Planning Games',
-	});
-	const username = Platform.select({
-  		ios: 'username',
-  		android: 'username',
-	});
-	const password = Platform.select({
-		ios: 'username',
-		android: 'username',
-	});
+		this.state = {
+			username: '',
+			password: '',
+		}
+	}
 
+	_onLoginPress(){
+		let {username, password} = this.state;
+		if(username !== '' && password !== ''){
+			console.log('App: logging in with ' + username + ';' + password);
+			this.fetchAndVerify();
+		}else if(username === '' || password === ''){
+			Alert.alert('It seems you may have either forgot to insert a Username or Password');
+			if(username === ''){
+				this.refs.usernameInput.focus();
+			}else if(password === ''){
+				this.refs.passInput.focus();
+			}
+		}
+	}
+
+
+
+	async fetchAndVerify(){
+		let {navigate} = this.props.navigation;
+		try{
+      		let sToken = await fetch("http://adrien.wtf/oauth/token", {
+		        method: 'POST',
+		        headers: {
+		          'Accept': 'application/json',
+		          'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({
+		          client_id: 2,
+		          client_secret: '9e45zczF7DZWUKnhCVkhts0EUO1TVU8GM838E6RJ',
+		          grant_type: 'password',
+		          username: this.state.username,
+		          password: this.state.password,
+		          scope: '*'
+		        })
+		      })
+	        var answer = await sToken.json();
+	        console.log('App: Server answered with ' + JSON.stringify(answer));
+	        if(answer.access_token  != null){
+	      		console.log('App: Login Successful with ' + this.state.username + ";" + this.state.password);
+	      		global.access_token = answer.access_token;
+	      		//pass access_token to global vars
+	      		navigate('PlayGame');
+	      		//navigate('Socket');
+	        }else{
+	      		Alert.alert('You may have input the wrong Username/Password combination');
+	      		this.refs.usernameInput.clear();
+	      		this.refs.passInput.clear();
+	      		this.refs.usernameInput.focus();
+	      	}
+      //console.warn(JSON.stringify(answer));
+      //this.setState({CSRFToken: JSON.stringify(answer.access_token)});
+      //return response;//this.response = await sToken.json();
+      } catch( error ){
+      	Alert.alert('It seems the Server is temporarily offline. Please try again later. If the Error persists, you may want to contact IT&I for further information');
+        //console.error(error);
+      }
+	}
+	
+	//TouchableOpacity
+	//At the bottom: Info + Credits
+
+	render() {
+		let {username, password} = this.state;
+		return(
+		<View style={{flex:1}}>
+		<View style={ppstyle.container}>
+			<View style={ppstyle.containerRow}>
+			<Image 
+				source={require('./img/logo.png')}
+				style={{width:45, height:45}}/>
+				<Text style={ppstyle.titleText}>Production Planning Game</Text>
+			</View>
+			<View style={{marginTop: 40}}>
+				<TextInput
+					style={{width:300}}
+					ref='usernameInput'
+					autoCorrect={false}
+					caretHidden={true}
+					returnKeyType={'next'}
+					onChangeText={(text) => {
+						this.setState({username: text})
+					}}
+					placeholder='username'
+					onSubmitEditing={() => {
+						this.refs.passInput.focus();
+					}}
+				/>
+				<TextInput
+					style={{width:300}}
+					ref='passInput'
+					autoCorrect={false}
+					returnKeyType={'done'}
+					secureTextEntry={true}
+					onChangeText={(text) => this.setState({password: text})}
+					placeholder='password'
+				/>
+			</View>
+			<TouchableOpacity 
+				style={ppstyle.touchable}  
+				onPress={() => this._onLoginPress()}>
+					<Text style={ppstyle.touchableText}>Log In</Text>
+	        </TouchableOpacity>
+
+	       
+
+        </View>
+         <View style={ppstyle.footer}>
+	        	<Text style={ppstyle.footerText}>European Project Semester 2017/2018</Text>
+	        	<TouchableOpacity
+	        		style={{top:10,left:670}}
+	        		onPress={() => this.openHowTo()}>
+	        		<Text style={ppstyle.footerHowTo}>How to Play?</Text>
+	        	</TouchableOpacity>
+	        </View>
+	    </View>
+	    );
+	}
+}
+
+class Pusher extends React.Component{
+	static navigationOptions = {
+		header: null
+	};
+	render(){
+		return(
+			<PusherService/>
+		);
+	}
+}
+
+class SockIO extends React.Component{
+	static navigationOptions = {
+		header: null
+	};
+	render(){
+		return(
+			<SocketService/>
+			);
+	}
+}
+//This is a reference of what to render as a GameView (we can pass the CSRF-Token retrieved on Login here)
 class Game extends React.Component{
   static naviagionOptions = {
     header: null
@@ -53,125 +190,15 @@ class Game extends React.Component{
   }
 }
 
-class HomeScreen extends React.Component{
-	static navigationOptions = {
-		header: null
-	};
-	PressNotification(){
-  		if (Platform.OS === 'android'){
-    	//Check weather NFC is enabled, if not redirect user to NFC Setting
-
-    	NfcManager.isEnabled().then(enabled => {
-       		if(enabled){
-        		ToastAndroid.show("NFC enabled", ToastAndroid.LONG);
-      		}else{
-        		Alert.alert(
-          			'NFC deactivated',
-          			'You need to activate NFC for this Application to work',
-          			[
-			           {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-			           {text: 'OK', onPress: () => NfcManager.goToNfcSetting()},
-			        ],
-          			{ cancelable: false }
-          		)
-      		}
-   		})
-  		} else if(Platform.OS === 'ios'){
-   			Alert.alert('Button has been pressed!');
-  		}
-	};
-
-	goToSettings() {
-        if (Platform.OS === 'android') {
-            NfcManager.goToNfcSetting()
-                .then(result => {
-                    console.log('goToNfcSetting OK', result)
-                })
-                .catch(error => {
-                    console.warn('goToNfcSetting fail', error)
-                })
-        }
-	};
-
-	render() {
-		const { navigate } = this.props.navigation;
-		return (
-      <View style={ppstyle.container}>
-        <Text style={ppstyle.important}>
-          {welcomeText}
-        </Text>        
-        <Text style={ppstyle.basic}>
-          {instructions}
-        </Text>
-        {/*Username Input*/}
-        <BasicTextInput
-        />  
-      {/*Password Input*/}
-        <BasicTextInput
-        />
-
-        <Button
-          onPress={this.PressNotification}
-          title="Start NFC Listener"
-          color="#333333"
-          />
-
-        <Button
-          onPress={this.goToSettings}
-          title="NFC Settings"
-          color="#333333"
-          />
-        <Button
-          onPress={() => navigate('Reader')}
-          title="Go To NFC Reader"
-          color="#444444"
-          />
-        <Button
-          onPress={() => navigate('PushService')}
-          title='Test Pusher'
-          color='#123BBB'
-          />
-
-        <Button 
-          onPress={() => navigate('PlayGame')}
-          title='GameScene Test'
-          color='#12FF44'
-          />
-      </View>
-    );
-	}
-}
-
-class PushingTest extends React.Component{
-  static navigationOptions = {
-    title: 'Pusher Service Test',
-  };
-  render(){
-    return(
-    <PusherService/>
-    );
-  }
-};
-
-class NFCScreen extends React.Component{
-	static navigationOptions = {
-		title: 'NFC Reader',
-	};
-    render(){
-	    return(
-	      <NFCReader/>
-	    );
-	}
-};
-
+//This will be exported and exposed to the ReactComponent Handler as the MainView
 export const PPG = StackNavigator({
-  Home: { screen: HomeScreen },
-  Reader: { screen: NFCScreen },
-  PushService : {screen: PushingTest},
-  PlayGame: {screen: Game}
-});
+  Home: { screen: Landing},
+  Socket: {screen: SockIO},
+  PlayGame: {screen: Game},
+  PusherTest: {screen: Pusher},
+},{headerMode: 'none'});
 
-
+//This will bundle the Navigator and therefor present the App to the User
 
 export default class App extends React.Component {
   render() {
