@@ -22,12 +22,26 @@ class WorkLoad extends Component {
             active: 'In',
             working: false,
         }
+
+        var requestedType;
         this._mounted;
         this.incrementer = null;
+
+        //Create Socket here
     }
 
     componentDidMount(){
     	this._mounted = true;
+
+      //Create all socket connection stuff
+      /*
+
+      socket.on(workorder, (data) => {
+        produce(data.type, data.amount)
+      });
+
+
+      */
     }
   	componentWillUnmount(){
   		this._mounted = false;
@@ -36,34 +50,52 @@ class WorkLoad extends Component {
   		}
   	}
 
+  convertTagtoChar(nfctag){
+    var letter = nfctag.ndefMessage[0].payload[3];
+    var number = nfctag.ndefMessage[0].payload[4];
+    var basketid = "";
+    if(letter !== null && number !== null){
+      basketid = String.fromCharCode.apply(null, [letter, number]);
+    } else {
+      basketid = "Error";
+    }
+    return basketid;
+  }
+
 	updateBasketState(nfctag){
 		var requested = this.state.type;
 		var workingState = this.state.working;
-        var letter = nfctag.ndefMessage[0].payload[3];
-        var number = nfctag.ndefMessage[0].payload[4];
-        var basketid = "";
-        if(letter !== null && number !== null){
-            basketid = String.fromCharCode.apply(null, [letter, number]);
-        } else {
-            basketid = "Error";
-        }
+    var basketid = convertTagToChar(nfctag)
         if(this._mounted){
-        	if(basketid === requested && workingState === false){
+        	if(basketid === requested){
         		this.setState({working: true, info: "Start Producing"}); 
-	  			this.incrementer = setInterval( () =>		
-		  			this.setState({
-		        		timer: this.state.timer + 1
-		      		})
+  	  			this.incrementer = setInterval( () =>		
+  		  		this.setState({
+  		       		timer: this.state.timer + 1
+  		      })
 		      		
 	    		, 1000);
   			}else if(basketid !== requested){
   				ToastAndroid.show("Not the right Basket!", ToastAndroid.SHORT);
-  			}else if(workingState === true && basketid === requested){
-  				this.setState({working: false, info: "Check Out"});
-  				clearInterval(this.incrementer);
   			}
   		}
         //this.setState({basket: basketid});
+    }
+
+    produce(type, amount) {
+      var workingState = this.state.active;
+      var prodTime, prodType, prodUnit, info;
+
+      if(workingState === true){
+        //add requested type + amount to Queue
+      }else{
+        workingState = true
+        prodTime = 0
+        prodType = type
+        prodUnits = amount
+        prodInfo = "Scan your Basket now"
+        this._startDetection()
+      }
     }
 
   	CheckIn = () => {
@@ -141,7 +173,16 @@ class WorkLoad extends Component {
     _onTagDiscovered = tag => {
         console.log('Tag Discovered', tag);
         //this.setState({ tag });
+        if(this.state.working === false){
+        global.workingState[global.name] = 2;
         this.updateBasketState(tag);
+        else{
+          if(convertTagtoChar(tag) === this.state.type){
+            this._stopDetection();
+            clearInterval(this.incrementer);
+            //socket.emit("finished", {time: this.state.timer})
+          } 
+        }
       
     }
 }

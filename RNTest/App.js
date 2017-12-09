@@ -77,9 +77,10 @@ class Landing extends React.Component {
 	        if(answer.access_token  != null){
 	      		console.log('App: Login Successful with ' + this.state.username + ";" + this.state.password);
 	      		global.access_token = answer.access_token;
+	      		global.name = this.state.username
 	      		//pass access_token to global vars
-	      		navigate('PlayGame');
-	      		//navigate('Socket');
+	      		//navigate('PlayGame');
+	      		navigate('Socket');
 	        }else{
 	      		Alert.alert('You may have input the wrong Username/Password combination');
 	      		this.refs.usernameInput.clear();
@@ -192,7 +193,7 @@ class Game extends React.Component{
 
 //This will be exported and exposed to the ReactComponent Handler as the MainView
 export const PPG = StackNavigator({
-  Home: { screen: Landing},
+  //Home: { screen: Landing},
   Socket: {screen: SockIO},
   PlayGame: {screen: Game},
   PusherTest: {screen: Pusher},
