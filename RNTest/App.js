@@ -79,8 +79,10 @@ class Landing extends React.Component {
 	      		global.access_token = answer.access_token;
 	      		global.name = this.state.username
 	      		//pass access_token to global vars
-	      		//navigate('PlayGame');
-	      		navigate('Socket');
+	      		this.refs.passInput.blur()
+
+	      		navigate('PlayGame');
+	      		//navigate('Socket');
 	        }else{
 	      		Alert.alert('You may have input the wrong Username/Password combination');
 	      		this.refs.usernameInput.clear();
@@ -194,7 +196,7 @@ class Game extends React.Component{
 //This will be exported and exposed to the ReactComponent Handler as the MainView
 export const PPG = StackNavigator({
   //Home: { screen: Landing},
-  Socket: {screen: SockIO},
+  //Socket: {screen: SockIO},
   PlayGame: {screen: Game},
   PusherTest: {screen: Pusher},
 },{headerMode: 'none'});

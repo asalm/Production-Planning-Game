@@ -176,7 +176,7 @@ class WorkLoad extends Component {
         if(this.state.working === false){
         global.workingState[global.name] = 2;
         this.updateBasketState(tag);
-        else{
+        }else{
           if(convertTagtoChar(tag) === this.state.type){
             this._stopDetection();
             clearInterval(this.incrementer);

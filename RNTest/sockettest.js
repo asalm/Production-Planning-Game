@@ -14,7 +14,7 @@ import {
 import SocketIOClient from 'socket.io-client';
 
 
-//FH only can use 80 and 443
+//FH can only use 80 and 443
 var baseUrl = 'http://172.104.229.28:8000';
 var url = "ws://demos.kaazing.com/echo";
 const PRIVATE_CHANNEL = 'ppc-game-communication-broadcast';
