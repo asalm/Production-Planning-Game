@@ -47,7 +47,13 @@ componentWillUnmount(){
 	this.socket.disconnect();
 }
 componentDidMount(){
+this.pings = setInterval(() => {
+    console.log('SocketIO: send ping');
+    this.socket.emit('ping');
+  },1000);
+/*
   this.socket.on('connect', () => {
+
       console.log('SocketIO: Connection to Server established');
       this.socket.emit('subscribe-to-channel', {channel: PRIVATE_CHANNEL});
       console.log(this.socket.id)
@@ -66,7 +72,7 @@ componentDidMount(){
   this.socket.on('pong', () => console.log('SocketIO: pong'));
     });
 
-  
+  */
   this.socket.on('connect_timeout', () => {
     console.log('SocketIO: Connection timed out');
     this.socket.close();

@@ -63,6 +63,8 @@ class WorkLoad extends Component {
   }
 
 	updateBasketState(nfctag){
+    this.props.callbackParent({activity: 'start', name: global.name});
+
 		var requested = this.state.type;
 		var workingState = this.state.working;
     var basketid = convertTagToChar(nfctag)
@@ -94,6 +96,8 @@ class WorkLoad extends Component {
         prodType = type
         prodUnits = amount
         prodInfo = "Scan your Basket now"
+        this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
+
         this._startDetection()
       }
     }
@@ -174,13 +178,13 @@ class WorkLoad extends Component {
         console.log('Tag Discovered', tag);
         //this.setState({ tag });
         if(this.state.working === false){
-        global.workingState[global.name] = 2;
+        //global.workingState[global.name] = 2;
         this.updateBasketState(tag);
         }else{
           if(convertTagtoChar(tag) === this.state.type){
             this._stopDetection();
             clearInterval(this.incrementer);
-            //socket.emit("finished", {time: this.state.timer})
+            this.props.callbackParent({activity: 'finish',time: this.state.timer});
           } 
         }
       

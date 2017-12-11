@@ -12,12 +12,14 @@ class GameState extends Component {
 	constructor(props) {
     	super(props);
      	this.state = {
-            workorder: 0,
+            gamemode: '',
         }
       this.updateScheduler;
     }
   
   componentDidMount(){
+    this.setState({gamemode: global.gamemode});
+    console.log("App: " + this.gamemode);
 
     this.refs.m1.setName("machine 1");
     this.refs.m2.setName("machine 2");
@@ -32,7 +34,7 @@ class GameState extends Component {
       this.refs.m3.setActivityState(global.workingState.machine3);
       this.refs.m4.setActivityState(global.workingState.machine4);
       this.refs.m5.setActivityState(global.workingState.machine5);
-    }, 1000);
+    }, 1200);
     
   }
 
@@ -41,25 +43,28 @@ class GameState extends Component {
   }
   	render(){
 		return(
-		<View style={ppstyle.contentTop}>
-      
+      <View>
+        <View style={ppstyle.contentTop}>
+          <Text style={{marginBottom:60}}>{this.state.gamemode}</Text>
+        </View>
+		  <View style={ppstyle.contentTop}>
 			{/*Representation of the single Mashines*/}
-      <MashineComponent
-        ref="m1"/>
-      <MashineComponent
-        ref="m2"/>
+        <MashineComponent
+          ref="m1"/>
+        <MashineComponent
+          ref="m2"/>
 
-      <MashineComponent
-        ref="m3"/>
+        <MashineComponent
+          ref="m3"/>
 
-      <MashineComponent
-        ref="m4"/>
+        <MashineComponent
+          ref="m4"/>
 
-      <MashineComponent
-        ref="m5"/>
+        <MashineComponent
+          ref="m5"/>
 
-		</View>
-
+		  </View>
+    </View>
 		);
   	}
 }
