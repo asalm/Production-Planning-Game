@@ -63,7 +63,7 @@ class WorkLoad extends Component {
   }
 
 	updateBasketState(nfctag){
-    this.props.callbackParent({activity: 'start', name: global.name});
+    this.props.callbackParent({name: global.name});
 
 		var requested = this.state.type;
 		var workingState = this.state.working;
@@ -184,7 +184,7 @@ class WorkLoad extends Component {
           if(convertTagtoChar(tag) === this.state.type){
             this._stopDetection();
             clearInterval(this.incrementer);
-            this.props.callbackParent({activity: 'finish',time: this.state.timer});
+            this.props.callbackParent({name: global.name,time: this.state.timer});
           } 
         }
       
