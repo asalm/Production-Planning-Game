@@ -9,6 +9,7 @@ import {
   ToastAndroid
 } from 'react-native';
 import {ppstyle} from '../style.js';
+import renderIf from '../renderIf.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
 class WorkLoad extends Component {
@@ -150,6 +151,8 @@ class WorkLoad extends Component {
 	          	</TouchableOpacity>
 	          	<Text style={ppstyle.productionInfoText}>{info}</Text>
 			</View>
+
+
 		</View>
 
 		);

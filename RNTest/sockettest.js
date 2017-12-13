@@ -29,11 +29,10 @@ class SocketService extends Component {
     }
     //Required so react knows its working in an App and not on the web
     window.navigator.userAgent = 'react-native';
-
+    
     this.socket = SocketIOClient(baseUrl, {transports: ['websocket'], timeout: 16000});
     console.log('SocketIO: Creating Websocket Connection on: ' + baseUrl);
-    console.log('SocketIO: Times out after : ' + this.socket.timeout);
-    
+    console.log('SocketIO: Times out after : ' + this.socket.timeout);  
  }
 
 componentWillMount(){
