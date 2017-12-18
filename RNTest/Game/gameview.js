@@ -26,6 +26,9 @@ class GameView extends Component {
     //The Socket kind of doesnt care for the Timer being set to 2seconds and throws
     //a warning. We use this to suppress the Warning, since everything else is working.
     console.disableYellowBox = true;
+    //Set up Global for Time and Produced Amount for Time per production
+    global.time = 0;
+    global.amount = 0;
     //Create SocketInstance with BaseURL, defined Transport and Timeout.
     this.socket = SocketIOClient(baseUrl, {transports: ['websocket'], timeout: 2000});
     console.log('SocketIO: Creating Websocket Connection on: ' + baseUrl);
@@ -36,7 +39,6 @@ class GameView extends Component {
     this.socket.on('connect', () => {
       console.log('SocketIO: Connection to Server established');
       this.socket.emit('subscribe-to-channel', {channel: PRIVATE_CHANNEL});
-      this.socket.emit('checkin', {name: "machine1"});
     });
     //Waiting for something to happen:
     /*
@@ -48,14 +50,25 @@ class GameView extends Component {
     */
     this.constructGlobalMachineState()
     this.startListeners();
+    //this.refs.wl.preproduce('C0',8);
   }
   componentWillUnmount(){
   }
+  //dataFromChild.id => Type of workloadAnswer (status, preproductionFin,)
+  //dataFromChild.time => How much dime it took the machine to create given Workorder
+  //dataFromChild.status => Answer if the Machine is currently working or not.
   workloadAnswers = (dataFromChild) => {
+    /*
     if(!dataFromChild.time){
     	this.socket.emit('status',{machine: dataFromChild.name, status:1,time:''});
     }else{
       this.socket.emit('status', {machine: dataFromChild.name, status: 0,time: dataFromChild.time});
+    }
+    */
+    if(dataFromChild.id === "preproductionFin"){
+      //this.socket.emit('finishedpreproduction', machine: global.name);
+      this.socket.emit('checkin', {name: global.name});
+
     }
   }
 
@@ -82,10 +95,25 @@ class GameView extends Component {
     	global.workingState.machine5 = data.status.number5;
       console.log('App: ' + data.status);
     });
+    this.socket.on('gamefinish', function(data){
+      var tpp = global.amount / global.time;
+      this.socket.emit('tpp', tpp);
+    });
+    this.socket.on('preproduction', function(data){
+      if(data.machine === global.name){
+        this.setState(running: true);
+        this.refs.wl.preproduce(data.type, data.amount);
+      }
+    });
     this.socket.on('workload', function(data){
     	if(data.machine === global.name)
     	 this.refs.wl.produce(data.type,data.amount);
-    })
+    });
+    this.socket.on('reset', () => {
+      this.setState({running:false});
+      global.time = 0;
+      global.amount = 0;
+    });
   }
   //Sets the initial state of the machines
   constructGlobalMachineState(){

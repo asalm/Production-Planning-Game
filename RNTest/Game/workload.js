@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import {
   Platform,
-  TouchableOpacity,
+  Button,
   Text,
   View,
   ToastAndroid
@@ -22,6 +22,7 @@ class WorkLoad extends Component {
             units: "",
             active: 'In',
             working: false,
+            preproduce: true,
         }
 
         var requestedType;
@@ -84,7 +85,12 @@ class WorkLoad extends Component {
   		}
         //this.setState({basket: basketid});
     }
+    //Preproduction method to tell the User what is needed for the Game to start.
+    preproduce(type, amount){
+      this.setState({preproduce: true, type: type, units: amount,prodInfo: 'Create Products now'});
+    };
 
+    //Method to trigger the production of a specific type and amount
     produce(type, amount) {
       var workingState = this.state.active;
       var prodTime, prodType, prodUnit, info;
@@ -104,6 +110,12 @@ class WorkLoad extends Component {
     }
 
   	CheckIn = () => {
+      if(this.state.preproduce){
+        this.setState({preproduce:false, type: '', units: ''});
+        //Signal Parent that you're done, so the Server also can know.
+        this.props.callbackParent({id: 'preproductionFin', name: global.name});
+
+      }else{
   		var workingState = this.state.active;
   		var prodTime, prodType, prodUnit, info;
   		if(workingState === 'In'){
@@ -124,8 +136,9 @@ class WorkLoad extends Component {
 
   			clearInterval(this.incrementer);
   		}
+      }
   		//Debug#
-  		this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
+  		//this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
   		//this.setState({active: workingState});
   		//console.warn(this.state.active);
   	}
@@ -134,22 +147,29 @@ class WorkLoad extends Component {
   		let {timer, type, units, active, info} = this.state;
 		return(
 		<View style={ppstyle.WorkOrderWrapper}>
-			<View  style={ppstyle.contentWorkOrder}>
+      <View style={ppstyle.contentWorkOrder}>
+			
+        {renderIf(!this.state.preproduce, <Text style={ppstyle.timerInfoText}>Your Production Time:</Text>)}
+			  {renderIf(!this.state.preproduce, <Text style={ppstyle.timerText}>{timer}</Text>)}
 
-				<Text style={ppstyle.timerInfoText}>Your Production Time:</Text>
-				<Text style={ppstyle.timerText}>{timer}</Text>
 
-				<Text style={ppstyle.productionInfoText}>Units to Produce:</Text>
-				<Text style={ppstyle.productionText}>{type} - {units}</Text>
+				{renderIf(!this.state.preproduce, <Text style={ppstyle.productionInfoText}>Units to Produce:</Text>)}
+				{renderIf(!this.state.preproduce, <Text style={ppstyle.productionText}>{type} - {units}</Text>)}
+
+        {renderIf(this.state.preproduce, <Text style={ppstyle.productionInfoText}>For the Game to start, you need</Text>)}
+        {renderIf(this.state.preproduce, <Text style={ppstyle.timerInfoText}>{units} units of product: {type}</Text>)}
 			</View>
 
 			<View style={ppstyle.contentWorkCheckIn}>
-				<TouchableOpacity 
-					style={ppstyle.touchable}  
-					onPress={this.CheckIn}>
-					<Text style={ppstyle.touchableText}>Check {active}</Text>
-	          	</TouchableOpacity>
-	          	<Text style={ppstyle.productionInfoText}>{info}</Text>
+      {renderIf(this.state.preproduce, <Button onPress={this.CheckIn} title="Done" color="#3F51B5"/>)}
+      {/*}
+      <TouchableOpacity style={ppstyle.touchable} onPress={this.CheckIn}>
+        {renderIf(!this.state.preproduce, <Text style={ppstyle.touchableText}>Check {active}</Text>)}
+        {renderIf(this.state.preproduce, <Text style={ppstyle.touchableText}>Done</Text>)}
+	     </TouchableOpacity>
+       */}
+	     <Text style={ppstyle.productionInfoText}>{info}</Text>
+        
 			</View>
 
 
@@ -187,6 +207,8 @@ class WorkLoad extends Component {
           if(convertTagtoChar(tag) === this.state.type){
             this._stopDetection();
             clearInterval(this.incrementer);
+            global.time += this.state.time;
+            global.amount += this.state.units;
             this.props.callbackParent({name: global.name,time: this.state.timer});
           } 
         }
