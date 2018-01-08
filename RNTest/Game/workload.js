@@ -30,6 +30,8 @@ class WorkLoad extends Component {
         this._mounted;
         this.incrementer = null;
 
+        this.queue = [];
+
         //Create Socket here
     }
 
@@ -98,15 +100,26 @@ class WorkLoad extends Component {
 
       if(workingState === true){
         //add requested type + amount to Queue
+        this.queue.push({type: type, quan: amount});
+        console.log(this.queue);
       }else{
-        workingState = true
+        workingState = true;
+        prodInfo = "Scan your Basket now";
         prodTime = 0
-        prodType = type
-        prodUnits = amount
-        prodInfo = "Scan your Basket now"
+
+        if(this.queue.length < 1){
+
+          prodType = type
+          prodUnits = amount
+        }else{
+          let latestInQueue = this.queue.unshift();
+          prodType = latestInQueue.type;
+          prodUnits = latestInQueue.amount;
+        }
         this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
 
         this._startDetection()
+
       }
     }
 
@@ -177,7 +190,9 @@ class WorkLoad extends Component {
         Here is where the directions for the Workorder are rendered
       */}
       <View style={ppstyle.directionsBox}>
-        <Directions type={"E2"}></Directions>
+        {renderIf(this.state.working,
+        <Directions type={this.state.type}></Directions>
+        )}
       </View>
 		</View>
 
