@@ -80,12 +80,20 @@ const ppstyle = StyleSheet.create({
 	},
 	WorkOrderWrapper: {
 		flexDirection: 'column',
-		flex:.5,
+		flex:.3,
 		position:'absolute',
 		width:percentmargin,
 		height:percentmargin,
 		top:percentmargin-boxheight,
 		marginLeft:percentmargin
+	},
+	directionsBox: {
+		marginTop:100,
+		//width: 600,
+		height: 100,
+		backgroundColor: 'transparent',
+		alignItems: 'center',
+		flexDirection: 'row'
 	},
 	contentWorkOrder: {
 		//position: 'absolute',

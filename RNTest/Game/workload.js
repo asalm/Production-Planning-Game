@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {ppstyle} from '../style.js';
 import renderIf from '../renderIf.js';
+import {Directions} from './Guides/direction.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
 class WorkLoad extends Component {
@@ -172,7 +173,12 @@ class WorkLoad extends Component {
         
 			</View>
 
-
+      {/*
+        Here is where the directions for the Workorder are rendered
+      */}
+      <View style={ppstyle.directionsBox}>
+        <Directions type={"E2"}></Directions>
+      </View>
 		</View>
 
 		);
