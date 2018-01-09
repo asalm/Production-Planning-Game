@@ -19,10 +19,8 @@ import {StackNavigator} from 'react-navigation';
 
 import {ppstyle} from './style.js';
 //Testing Purpose
-import {PusherService} from './pusherservice.js';
-import {SocketService} from './sockettest.js';
 import {GameView} from './Game/gameview.js';
-import {LoginComponent} from './Game/loginComponent.js'
+//import {LoginComponent} from './Game/loginComponent.js'
 
 class Landing extends React.Component {
 	static navigationOptions = {
@@ -65,7 +63,7 @@ class Landing extends React.Component {
 		        },
 		        body: JSON.stringify({
 		          client_id: 2,
-		          client_secret: '9e45zczF7DZWUKnhCVkhts0EUO1TVU8GM838E6RJ',
+		          client_secret: 'uNH9J0b4Ga2kfsXdDM6i774v1LKZXul2J3P5iyNv',
 		          grant_type: 'password',
 		          username: this.state.username,
 		          password: this.state.password,
@@ -159,27 +157,6 @@ class Landing extends React.Component {
 	}
 }
 
-class Pusher extends React.Component{
-	static navigationOptions = {
-		header: null
-	};
-	render(){
-		return(
-			<PusherService/>
-		);
-	}
-}
-
-class SockIO extends React.Component{
-	static navigationOptions = {
-		header: null
-	};
-	render(){
-		return(
-			<SocketService/>
-			);
-	}
-}
 //This is a reference of what to render as a GameView (we can pass the CSRF-Token retrieved on Login here)
 class Game extends React.Component{
   static naviagionOptions = {
@@ -195,10 +172,8 @@ class Game extends React.Component{
 
 //This will be exported and exposed to the ReactComponent Handler as the MainView
 export const PPG = StackNavigator({
-  //Home: { screen: Landing},
-  //Socket: {screen: SockIO},
+  Home: { screen: Landing},
   PlayGame: {screen: Game},
-  PusherTest: {screen: Pusher},
 },{headerMode: 'none'});
 
 //This will bundle the Navigator and therefor present the App to the User

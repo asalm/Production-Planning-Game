@@ -95,6 +95,16 @@ const ppstyle = StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'row'
 	},
+	waitingText: {
+		fontSize: 60,
+		width:600,
+		height:200,
+		justifyContent: 'center',
+		alignItems: 'center',
+ 		position: 'absolute',
+ 		left: 'auto',
+    	//top: height*0.93,
+	},
 	contentWorkOrder: {
 		//position: 'absolute',
 		//flex:1,

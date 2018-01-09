@@ -1,5 +1,3 @@
-/*workload.js*/
-
 import React, { Component } from 'react';
 import {
   Platform,
@@ -11,7 +9,11 @@ import {
 import {ppstyle} from '../style.js';
 import renderIf from '../renderIf.js';
 import {Directions} from './Guides/direction.js';
+
+
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
+
+//JUST FOR TESTING ENVIRONMENT
 
 class WorkLoad extends Component {
 
@@ -23,7 +25,7 @@ class WorkLoad extends Component {
             units: "",
             active: 'In',
             working: false,
-            preproduce: true,
+            preproduce: false,
         }
 
         var requestedType;
@@ -231,6 +233,10 @@ class WorkLoad extends Component {
             global.time += this.state.time;
             global.amount += this.state.units;
             this.props.callbackParent({name: global.name,time: this.state.timer});
+
+            if(this.queue.length > 1){
+              // Start Detection again!
+            }
           } 
         }
       

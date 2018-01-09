@@ -21,7 +21,7 @@ class GameView extends Component {
 	constructor(props) {
     super(props);
     this.state = {
-      running: true,
+      running: false
     }
     //The Socket kind of doesnt care for the Timer being set to 2seconds and throws
     //a warning. We use this to suppress the Warning, since everything else is working.
@@ -42,11 +42,7 @@ class GameView extends Component {
     });
     //Waiting for something to happen:
     /*
-    this.socket.on('startgame', function(data){
-      global.gamemode = data.gametype;
-      this.constructGlobalMachineState()
-      this.startListeners();
-    });
+
     */
     this.constructGlobalMachineState()
     this.startListeners();
@@ -67,7 +63,8 @@ class GameView extends Component {
     */
     if(dataFromChild.id === "preproductionFin"){
       //this.socket.emit('finishedpreproduction', machine: global.name);
-      this.socket.emit('checkin', {name: global.name});
+      this.socket.emit('finPreProd', {name: global.name});
+      this.setState({running:false});
 
     }
   }
@@ -79,7 +76,6 @@ class GameView extends Component {
   //This function initialises the responsive Listeners and starts the Timer for
   //a ping event to retrieve machine-status every second.
   startListeners(){
-
     //Only one Machine, in our Case Machine 1 has to keep the emits, otherwise this will cause
     //unnessessary Traffic since 5 people are asking for the same broadcast at nearly the same time
     if(global.name === "machine1"){
@@ -94,20 +90,28 @@ class GameView extends Component {
     	global.workingState.machine4 = data.status.number4;
     	global.workingState.machine5 = data.status.number5;
       console.log('App: ' + data.status);
-    });
+    }); 
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
       this.socket.emit('tpp', tpp);
     });
-    this.socket.on('preproduction', function(data){
+    this.socket.on('preproduce', (data) => {
+      console.log("App: preproduction Order: " + data.machine +";"+data.type+";"+data.amount);
       if(data.machine === global.name){
-        this.setState(running: true);
+        this.setState({running:true});
         this.refs.wl.preproduce(data.type, data.amount);
       }
     });
+    this.socket.on('ready', function(data){
+      global.gamemode = data.gametype;
+      this.setState({running: true});
+    });
     this.socket.on('workload', function(data){
-    	if(data.machine === global.name)
-    	 this.refs.wl.produce(data.type,data.amount);
+      if(this.state.running){
+    	 if(data.machine === global.name){
+    	   this.refs.wl.produce(data.type,data.amount);
+       }
+      }
     });
     this.socket.on('reset', () => {
       this.setState({running:false});
@@ -120,26 +124,6 @@ class GameView extends Component {
     global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};
   }
 
-  howDoICallThisMethod(){
-    if(this.state.running = false){
-      return(
-          <View>
-            <Text style={ppstyle.productionText}>Waiting for Game to start</Text>
-          </View>
-        );
-    }else if(this.state.running = true){
-      return (
-      <View>{/* style={ppstyle.contentbox}>*/}
-
-      <GameState/>
-      {/*Application View goes here-->*/}
-      <WorkLoad ref="wl" callbackParent={this.workloadAnswers}/>
-    </View>
-
-    );
-    }
-  }
-
   render(){
 		return(
       <View>
@@ -149,14 +133,15 @@ class GameView extends Component {
         {renderIf(this.state.running,
           <WorkLoad ref="wl" callbackParent={this.workloadAnswers}/>)}
         {renderIf(!this.state.running,
-          <Text style={ppstyle.productionText}>Waiting for Game to Start</Text>
+          <Text style={ppstyle.waitingText}>Waiting for Game to Start</Text>
         )}
+        {/*
         <TouchableOpacity 
           style={ppstyle.touchable}  
           onPress={this.endEverything}>
           <Text style={ppstyle.touchableText}>BYE!</Text>
         </TouchableOpacity>
-
+        */}
       </View>  
 		);
   }
