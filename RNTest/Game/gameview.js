@@ -67,6 +67,9 @@ class GameView extends Component {
       this.setState({running:false});
 
     }
+    if(dataFromChild.id === "productionfinished"){
+      this.socket.emit('orderFinished', {machine: dataFromChild.name, time: dataFromChild.time, product: dataFromChild.product})
+    }
   }
 
   endEverything = () => {
@@ -83,6 +86,9 @@ class GameView extends Component {
         this.socket.emit('whoworkin');
       },1000);
     }
+    this.socket.on('running', ()=>{
+      this.setState({running:true});
+    });
     this.socket.on('messages.getStatus', function(data){
     	global.workingState.machine1 = data.status.number1;
     	global.workingState.machine2 = data.status.number2;
@@ -106,10 +112,10 @@ class GameView extends Component {
       global.gamemode = data.gametype;
       this.setState({running: true});
     });
-    this.socket.on('workload', function(data){
+    this.socket.on('produce', (data)=>{
       if(this.state.running){
     	 if(data.machine === global.name){
-    	   this.refs.wl.produce(data.type,data.amount);
+    	   this.refs.wl.produce(data.product,data.amount);
        }
       }
     });

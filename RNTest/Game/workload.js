@@ -9,8 +9,7 @@ import {
 import {ppstyle} from '../style.js';
 import renderIf from '../renderIf.js';
 import {Directions} from './Guides/direction.js';
-
-
+import NFChelper from './nfchelper.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
 //JUST FOR TESTING ENVIRONMENT
@@ -19,45 +18,31 @@ class WorkLoad extends Component {
 
 	constructor(props) {
 		super(props);
-     	this.state = {
-            timer: "",
-            type: '',
-            units: "",
-            active: 'In',
-            working: false,
-            preproduce: false,
-        }
-
-        var requestedType;
-        this._mounted;
-        this.incrementer = null;
-
-        this.queue = [];
-
-        //Create Socket here
+   	this.state = {
+      timer: "",
+      type: '',
+      units: "",
+      active: 'In',
+      working: false,
+      preproduce: false,
     }
 
-    componentDidMount(){
-    	this._mounted = true;
+    var requestedType;
+    this._mounted;
+    this.incrementer = null;
+    this.queue = [];
+  }
 
-      //Create all socket connection stuff
-      /*
-
-      socket.on(workorder, (data) => {
-        produce(data.type, data.amount)
-      });
-
-
-      */
-    }
-  	componentWillUnmount(){
-  		this._mounted = false;
-  		if(this.incrementer != null){
-  			clearInterval(this.incrementer);
-  		}
-  	}
-
-  convertTagtoChar(nfctag){
+  componentDidMount(){
+  	this._mounted = true;
+  }
+ 	componentWillUnmount(){
+ 		this._mounted = false;
+ 		if(this.incrementer != null){
+ 			clearInterval(this.incrementer);
+ 		}
+ 	}
+  convertTagtoChar = (nfctag) => {
     var letter = nfctag.ndefMessage[0].payload[3];
     var number = nfctag.ndefMessage[0].payload[4];
     var basketid = "";
@@ -69,12 +54,12 @@ class WorkLoad extends Component {
     return basketid;
   }
 
-	updateBasketState(nfctag){
-    this.props.callbackParent({name: global.name});
+	updateBasketState = (nfctag) => {
+    //this.props.callbackParent({name: global.name});
 
 		var requested = this.state.type;
 		var workingState = this.state.working;
-    var basketid = convertTagToChar(nfctag)
+    var basketid = this.convertTagtoChar(nfctag);
         if(this._mounted){
         	if(basketid === requested){
         		this.setState({working: true, info: "Start Producing"}); 
@@ -96,7 +81,7 @@ class WorkLoad extends Component {
     };
 
     //Method to trigger the production of a specific type and amount
-    produce(type, amount) {
+    produce = (type, amount) =>{
       var workingState = this.state.active;
       var prodTime, prodType, prodUnit, info;
 
@@ -224,18 +209,23 @@ class WorkLoad extends Component {
         console.log('Tag Discovered', tag);
         //this.setState({ tag });
         if(this.state.working === false){
-        //global.workingState[global.name] = 2;
-        this.updateBasketState(tag);
+          //global.workingState[global.name] = 2;
+          this.updateBasketState(tag);
         }else{
-          if(convertTagtoChar(tag) === this.state.type){
+          let tagID = this.convertTagtoChar(tag);
+          if(tagID === this.state.type){
             this._stopDetection();
             clearInterval(this.incrementer);
             global.time += this.state.time;
             global.amount += this.state.units;
-            this.props.callbackParent({name: global.name,time: this.state.timer});
+
+            this.props.callbackParent({name: global.name,time: this.state.timer,product:this.state.type});
+            this.setState({timer: '', type: '', units:'', working:false, info: 'Wait for next order'});
 
             if(this.queue.length > 1){
               // Start Detection again!
+            }else{
+              //this.setState({timer: '', type: '', units:'', working:false})
             }
           } 
         }
