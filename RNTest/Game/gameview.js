@@ -89,12 +89,12 @@ class GameView extends Component {
     this.socket.on('running', ()=>{
       this.setState({running:true});
     });
-    this.socket.on('messages.getStatus', function(data){
-    	global.workingState.machine1 = data.status.number1;
-    	global.workingState.machine2 = data.status.number2;
-    	global.workingState.machine3 = data.status.number3;
-    	global.workingState.machine4 = data.status.number4;
-    	global.workingState.machine5 = data.status.number5;
+    this.socket.on('mStatus', function(data){
+    	global.workingState.machine1 = data.number1;
+    	global.workingState.machine2 = data.number2;
+    	global.workingState.machine3 = data.number3;
+    	global.workingState.machine4 = data.number4;
+    	global.workingState.machine5 = data.number5;
       console.log('App: ' + data.status);
     }); 
     this.socket.on('gamefinish', function(data){
