@@ -68,7 +68,7 @@ class GameView extends Component {
 
     }
     if(dataFromChild.id === "productionfinished"){
-      this.socket.emit('orderFinished', {machine: dataFromChild.name, time: dataFromChild.time, product: dataFromChild.product})
+      this.socket.emit('orderFinished', {machine: dataFromChild.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount})
     }
   }
 

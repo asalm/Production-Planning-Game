@@ -219,7 +219,7 @@ class WorkLoad extends Component {
             global.time += this.state.time;
             global.amount += this.state.units;
 
-            this.props.callbackParent({name: global.name,time: this.state.timer,product:this.state.type});
+            this.props.callbackParent({name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
             this.setState({timer: '', type: '', units:'', working:false, info: 'Wait for next order'});
 
             if(this.queue.length > 1){
