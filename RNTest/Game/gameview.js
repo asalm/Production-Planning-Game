@@ -81,11 +81,11 @@ class GameView extends Component {
   startListeners(){
     //Only one Machine, in our Case Machine 1 has to keep the emits, otherwise this will cause
     //unnessessary Traffic since 5 people are asking for the same broadcast at nearly the same time
-    if(global.name === "machine1"){
+    /*if(global.name === "machine1"){
       this.pings = setInterval(() => {
         this.socket.emit('whoworkin');
       },1000);
-    }
+    }*/
     this.socket.on('running', ()=>{
       this.setState({running:true});
     });
@@ -96,10 +96,15 @@ class GameView extends Component {
     	global.workingState.machine4 = data.number4;
     	global.workingState.machine5 = data.number5;
       console.log('App: ' + data.status);
-    }); 
+    });
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
       this.socket.emit('tpp', tpp);
+
+      this.refs.wl.reset();
+      this.setState({running:false});
+      global.amount = 0;
+      global.time = 0;
     });
     this.socket.on('preproduce', (data) => {
       console.log("App: preproduction Order: " + data.machine +";"+data.type+";"+data.amount);
@@ -141,13 +146,6 @@ class GameView extends Component {
         {renderIf(!this.state.running,
           <Text style={ppstyle.waitingText}>Waiting for Game to Start</Text>
         )}
-        {/*
-        <TouchableOpacity 
-          style={ppstyle.touchable}  
-          onPress={this.endEverything}>
-          <Text style={ppstyle.touchableText}>BYE!</Text>
-        </TouchableOpacity>
-        */}
       </View>  
 		);
   }

@@ -54,6 +54,12 @@ class WorkLoad extends Component {
     return basketid;
   }
 
+  //Once a game is done, we reset all parameters to empty values
+  reset = () => {
+    this.setState({timer:'',type:'',units:'',active:'In',working:false,preproduce:false});
+    
+  }
+
 	updateBasketState = (nfctag) => {
     //this.props.callbackParent({name: global.name});
 
@@ -76,7 +82,7 @@ class WorkLoad extends Component {
         //this.setState({basket: basketid});
     }
     //Preproduction method to tell the User what is needed for the Game to start.
-    preproduce(type, amount){
+    preproduce =(type, amount)=>{
       this.setState({preproduce: true, type: type, units: amount,prodInfo: 'Create Products now'});
     };
 
