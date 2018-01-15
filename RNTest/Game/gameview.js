@@ -3,6 +3,7 @@ import {
   Platform,
   Text,
   TouchableOpacity,
+  ToastAndroid,
   View
 } from 'react-native';
 import "../UserAgent";
@@ -15,13 +16,15 @@ import renderIf from '../renderIf.js';
 
 var baseUrl = 'http://172.104.229.28:8000'
 const PRIVATE_CHANNEL = 'ppc-game-communication-broadcast';
-
+var queue = [];
+var queuelength;
 class GameView extends Component {
 
 	constructor(props) {
     super(props);
     this.state = {
-      running: false
+      running: false,
+      producing: false
     }
     //The Socket kind of doesnt care for the Timer being set to 2seconds and throws
     //a warning. We use this to suppress the Warning, since everything else is working.
@@ -54,21 +57,26 @@ class GameView extends Component {
   //dataFromChild.time => How much dime it took the machine to create given Workorder
   //dataFromChild.status => Answer if the Machine is currently working or not.
   workloadAnswers = (dataFromChild) => {
-    /*
-    if(!dataFromChild.time){
-    	this.socket.emit('status',{machine: dataFromChild.name, status:1,time:''});
-    }else{
-      this.socket.emit('status', {machine: dataFromChild.name, status: 0,time: dataFromChild.time});
-    }
-    */
     if(dataFromChild.id === "preproductionFin"){
       //this.socket.emit('finishedpreproduction', machine: global.name);
       this.socket.emit('finPreProd', {name: global.name});
       this.setState({running:false});
 
-    }
-    if(dataFromChild.id === "productionfinished"){
-      this.socket.emit('orderFinished', {machine: dataFromChild.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount})
+    }else if(dataFromChild.id === "productFin"){
+      this.socket.emit('productionfinished', {machine: global.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount});  
+      if(queuelength >= 1){
+        var firstInQueue = queue.shift();
+        console.log('App: QUEPosition');
+        console.log('App: First in Queue ' + firstInQueue.type + "/" + firstInQueue.amount);
+        console.log('App: Queuelength' + queuelength + 'productionstate: ' + this.state.producing);
+        this.refs.wl.produce(firstInQueue.type,firstInQueue.amount);
+        queuelength--;
+        if(queuelength === 0){
+          this.setState({producing:false});
+        }
+      }else{
+        this.setState({producing:false});
+      }
     }
   }
 
@@ -99,7 +107,7 @@ class GameView extends Component {
     });
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
-      this.socket.emit('tpp', tpp);
+      this.socket.emit('tpp', {timePerPiece: tpp,name:global.name});
 
       this.refs.wl.reset();
       this.setState({running:false});
@@ -120,7 +128,14 @@ class GameView extends Component {
     this.socket.on('produce', (data)=>{
       if(this.state.running){
     	 if(data.machine === global.name){
-    	   this.refs.wl.produce(data.product,data.amount);
+        if(!this.state.producing){
+    	      this.refs.wl.produce(data.product,data.amount);
+            this.setState({producing:true});
+          }else{
+            queue.pop(data);
+            queuelength++;
+            ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
+          }
        }
       }
     });

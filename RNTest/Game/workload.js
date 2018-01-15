@@ -59,7 +59,9 @@ class WorkLoad extends Component {
     this.setState({timer:'',type:'',units:'',active:'In',working:false,preproduce:false});
     
   }
-
+  productFinished = () => {
+    this.props.callbackParent({id:'productFin',name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
+  }
 	updateBasketState = (nfctag) => {
     //this.props.callbackParent({name: global.name});
 
@@ -91,29 +93,20 @@ class WorkLoad extends Component {
       var workingState = this.state.active;
       var prodTime, prodType, prodUnit, info;
 
-      if(workingState === true){
-        //add requested type + amount to Queue
-        this.queue.push({type: type, quan: amount});
-        console.log(this.queue);
-      }else{
-        workingState = true;
-        prodInfo = "Scan your Basket now";
-        prodTime = 0
+      workingState = true;
+      prodInfo = "Scan your Basket now";
+      prodTime = 0    
+      prodType = type
+      prodUnits = amount
+      this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
 
-        if(this.queue.length < 1){
+      this._startDetection();
 
-          prodType = type
-          prodUnits = amount
-        }else{
-          let latestInQueue = this.queue.unshift();
-          prodType = latestInQueue.type;
-          prodUnits = latestInQueue.amount;
-        }
-        this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
+    
+    }
 
-        this._startDetection()
-
-      }
+    reportWorkingState = () => {
+      return this.state.active;
     }
 
   	CheckIn = () => {
@@ -123,26 +116,27 @@ class WorkLoad extends Component {
         this.props.callbackParent({id: 'preproductionFin', name: global.name});
 
       }else{
-  		var workingState = this.state.active;
-  		var prodTime, prodType, prodUnit, info;
-  		if(workingState === 'In'){
-  			this._startDetection();
-  			workingState = 'Out';
-  			prodTime = 0;
-  			prodType = "C0";
-  			prodUnits = 8;
-  			prodInfo = "Scan your Basket now";
-  			
-  		}else{
-  			this._stopDetection();
-  			workingState = 'In';
-  			prodTime = 0;
-  			prodType = "";
-  			prodUnits = "";
-  			prodInfo = "Wait for your next Workorder";
+    		var workingState = this.state.active;
+    		var prodTime, prodType, prodUnit, info;
+    		if(workingState === 'In'){
+    			this._startDetection();
+    			workingState = 'Out';
+    			prodTime = 0;
+    			prodType = "C0";
+    			prodUnits = 8;
+    			prodInfo = "Scan your Basket now";
+    			
+    		}else{
+    			this._stopDetection();
+    			workingState = 'In';
+    			prodTime = 0;
+    			prodType = "";
+    			prodUnits = "";
+    			prodInfo = "Wait for your next Workorder";
 
-  			clearInterval(this.incrementer);
-  		}
+    			clearInterval(this.incrementer);
+    		
+        }
       }
   		//Debug#
   		//this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
@@ -224,15 +218,8 @@ class WorkLoad extends Component {
             clearInterval(this.incrementer);
             global.time += this.state.time;
             global.amount += this.state.units;
-
-            this.props.callbackParent({name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
+            this.productFinished();
             this.setState({timer: '', type: '', units:'', working:false, info: 'Wait for next order'});
-
-            if(this.queue.length > 1){
-              // Start Detection again!
-            }else{
-              //this.setState({timer: '', type: '', units:'', working:false})
-            }
           } 
         }
       
