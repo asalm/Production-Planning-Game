@@ -105,7 +105,6 @@ class GameView extends Component {
     	global.workingState.machine3 = data.number3;
     	global.workingState.machine4 = data.number4;
     	global.workingState.machine5 = data.number5;
-      console.log('App: ' + data.status);
     });
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
@@ -117,7 +116,7 @@ class GameView extends Component {
       global.time = 0;
     });
     this.socket.on('preproduce', (data) => {
-      console.log("App: preproduction Order: " + data.machine +";"+data.type+";"+data.amount);
+      console.log('App: preproduction Order: ' + data.machine +";"+data.type+";"+data.amount);
       if(data.machine === global.name){
         this.setState({running:true});
         this.refs.wl.preproduce(data.type, data.amount);
@@ -137,14 +136,21 @@ class GameView extends Component {
             queue.push(data);
             queuelength++;
             ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
+            console.log('App: A Workorder has been added to the queue');
           }
        }
       }
     });
-    this.socket.on('reset', () => {
-      this.setState({running:false});
+    this.socket.on('appReset', (data) => {
+      this.setState({running:false, producing: false});
+      this.refs.wl.reset();
+      queuelength = 0;
+      queue = [];
       global.time = 0;
       global.amount = 0;
+      global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};
+      console.log('App: SERVER RESETTED');
+
     });
   }
   //Sets the initial state of the machines
