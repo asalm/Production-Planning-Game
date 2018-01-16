@@ -63,7 +63,7 @@ class WorkLoad extends Component {
     this.props.callbackParent({id:'productFin',name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
   }
 	updateBasketState = (nfctag) => {
-    //this.props.callbackParent({name: global.name});
+    this.props.callbackParent({id:'prodStart',amount:this.state.units,product:this.state.type});
 
 		var requested = this.state.type;
 		var workingState = this.state.working;

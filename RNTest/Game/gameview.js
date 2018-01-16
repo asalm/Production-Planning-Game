@@ -77,6 +77,8 @@ class GameView extends Component {
       }else{
         this.setState({producing:false});
       }
+    }else if(dataFromChild.id === 'prodStart'){
+      this.socket.emit('productionStarted',{machine:global.name, product:dataFromChild.product,amount:dataFromChild.amount});
     }
   }
 
