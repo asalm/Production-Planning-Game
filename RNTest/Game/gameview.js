@@ -109,7 +109,7 @@ class GameView extends Component {
     });
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
-      this.socket.emit('tpp', {timePerPiece: tpp,name:global.name});
+      this.socket.emit('tpp', {tppAmount: global.amount,tppTime: global.time,name:global.name});
 
       this.refs.wl.reset();
       this.setState({running:false});
@@ -134,7 +134,7 @@ class GameView extends Component {
     	      this.refs.wl.produce(data.product,data.amount);
             this.setState({producing:true});
           }else{
-            queue.pop(data);
+            queue.push(data);
             queuelength++;
             ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
           }
