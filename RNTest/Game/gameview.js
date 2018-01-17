@@ -16,8 +16,7 @@ import renderIf from '../renderIf.js';
 
 var baseUrl = 'http://172.104.229.28:8000'
 const PRIVATE_CHANNEL = 'ppc-game-communication-broadcast';
-var queue = [];
-var queuelength;
+
 class GameView extends Component {
 
 	constructor(props) {
@@ -32,6 +31,8 @@ class GameView extends Component {
     //Set up Global for Time and Produced Amount for Time per production
     global.time = 0;
     global.amount = 0;
+    var queue = [];
+    var queuelength;
     //Create SocketInstance with BaseURL, defined Transport and Timeout.
     this.socket = SocketIOClient(baseUrl, {transports: ['websocket'], timeout: 2000});
     console.log('SocketIO: Creating Websocket Connection on: ' + baseUrl);
@@ -62,16 +63,20 @@ class GameView extends Component {
       this.socket.emit('finPreProd', {name: global.name});
       this.setState({running:false});
 
-    }else if(dataFromChild.id === "productFin"){
+    }else if(dataFromChild.id == "productFin"){
       this.socket.emit('productionfinished', {machine: global.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount});  
       if(queuelength >= 1){
+        console.log('App: First in Queue is ' + queue[0].product + "//" + queue[0].amount);
         var firstInQueue = queue.shift();
-        console.log('App: QUEPosition');
-        console.log('App: First in Queue ' + firstInQueue.type + "/" + firstInQueue.amount);
+        console.log('App: elected first in Queue' + firstInQueue.product + "/" + firstInQueue.amount);
         console.log('App: Queuelength' + queuelength + 'productionstate: ' + this.state.producing);
-        this.refs.wl.produce(firstInQueue.type,firstInQueue.amount);
+        try{
+          this.refs.wl.produce(firstInQueue.product,firstInQueue.amount);
+        }catch(err){
+
+        }
         queuelength--;
-        if(queuelength === 0){
+        if(queuelength == 0){
           this.setState({producing:false});
         }
       }else{
@@ -109,8 +114,11 @@ class GameView extends Component {
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
       this.socket.emit('tpp', {tppAmount: global.amount,tppTime: global.time,name:global.name});
-
+      try{
       this.refs.wl.reset();
+      }catch(err){
+
+      }
       this.setState({running:false});
       global.amount = 0;
       global.time = 0;
@@ -119,7 +127,11 @@ class GameView extends Component {
       console.log('App: preproduction Order: ' + data.machine +";"+data.type+";"+data.amount);
       if(data.machine === global.name){
         this.setState({running:true});
+        try{
         this.refs.wl.preproduce(data.type, data.amount);
+        }catch(err){
+
+        }
       }
     });
     this.socket.on('ready', function(data){
@@ -130,10 +142,14 @@ class GameView extends Component {
       if(this.state.running){
     	 if(data.machine === global.name){
         if(!this.state.producing){
+          try{
     	      this.refs.wl.produce(data.product,data.amount);
             this.setState({producing:true});
+          }catch(err){
+
+          }
           }else{
-            queue.push(data);
+            queue.push({product: data.product,amount: data.amount});
             queuelength++;
             ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
             console.log('App: A Workorder has been added to the queue');
@@ -143,7 +159,9 @@ class GameView extends Component {
     });
     this.socket.on('appReset', (data) => {
       this.setState({running:false, producing: false});
+      try{
       this.refs.wl.reset();
+      }catch(err){}
       queuelength = 0;
       queue = [];
       global.time = 0;

@@ -12,8 +12,6 @@ import {Directions} from './Guides/direction.js';
 import NFChelper from './nfchelper.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
-//JUST FOR TESTING ENVIRONMENT
-
 class WorkLoad extends Component {
 
 	constructor(props) {
@@ -43,8 +41,10 @@ class WorkLoad extends Component {
  		}
  	}
   convertTagtoChar = (nfctag) => {
+    try{
     var letter = nfctag.ndefMessage[0].payload[3];
     var number = nfctag.ndefMessage[0].payload[4];
+    }catch(err){}
     var basketid = "";
     if(letter !== null && number !== null){
       basketid = String.fromCharCode.apply(null, [letter, number]);

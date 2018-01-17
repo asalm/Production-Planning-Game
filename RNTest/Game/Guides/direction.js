@@ -25,7 +25,7 @@ class Directions extends Component {
     setImagePath(){
     	let t = this.props.type.substring(0,2);
     	let num = this.props.type.substring(1,2);
-    	console.log("App: " + t + "--" + num);
+    	//console.log("App: " + t + "--" + num);
     	let imgpath;
 
     	switch(t){
@@ -57,7 +57,7 @@ class Directions extends Component {
     			console.log('unable to determine which resource needs to be loaded');
     			break;
     	}
-    	console.log("App: CWR: ImagePath for Guide is: " + imgpath);
+    	//console.log("App: CWR: ImagePath for Guide is: " + imgpath);
     	path = imgpath;
 
     }
