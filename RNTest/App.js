@@ -145,7 +145,7 @@ class Landing extends React.Component {
 
         </View>
          <View style={ppstyle.footer}>
-	        	<Text style={ppstyle.footerText}>European Project Semester 2017/2018</Text>
+	        	<Text style={ppstyle.footerText}>v1.01 - European Project Semester 2017/2018</Text>
 	        	<TouchableOpacity
 	        		style={{top:10,left:670}}
 	        		onPress={() => this.openHowTo()}>

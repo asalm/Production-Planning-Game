@@ -12,6 +12,9 @@ import {Directions} from './Guides/direction.js';
 import NFChelper from './nfchelper.js';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 
+//Toast for everything you need to do!!!
+//Lead the player through the process of checking in and out
+
 class WorkLoad extends Component {
 
 	constructor(props) {
@@ -29,6 +32,7 @@ class WorkLoad extends Component {
     this._mounted;
     this.incrementer = null;
     this.queue = [];
+    this.checkoutAlert = false;
   }
 
   componentDidMount(){
@@ -42,15 +46,16 @@ class WorkLoad extends Component {
  	}
   convertTagtoChar = (nfctag) => {
     try{
-    var letter = nfctag.ndefMessage[0].payload[3];
-    var number = nfctag.ndefMessage[0].payload[4];
+      var letter = nfctag.ndefMessage[0].payload[3];
+      var number = nfctag.ndefMessage[0].payload[4];
+      var basketid = "";
+      if(letter !== null && number !== null){
+        basketid = String.fromCharCode.apply(null, [letter, number]);
+      } else {
+        basketid = "Error";
+      }
     }catch(err){}
-    var basketid = "";
-    if(letter !== null && number !== null){
-      basketid = String.fromCharCode.apply(null, [letter, number]);
-    } else {
-      basketid = "Error";
-    }
+    
     return basketid;
   }
 
@@ -60,6 +65,8 @@ class WorkLoad extends Component {
     
   }
   productFinished = () => {
+    this.checkoutAlert = false;
+    this.setState({working:false,active:false});
     this.props.callbackParent({id:'productFin',name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
   }
 	updateBasketState = (nfctag) => {
@@ -71,38 +78,40 @@ class WorkLoad extends Component {
         if(this._mounted){
         	if(basketid === requested){
         		this.setState({working: true, info: "Start Producing"}); 
-  	  			this.incrementer = setInterval( () =>		
-  		  		this.setState({
-  		       		timer: this.state.timer + 1
-  		      })
-		      		
-	    		, 1000);
+  	  			this.incrementer = setInterval( () =>	{	
+    		  		this.setState({
+    		       		timer: this.state.timer + 1
+    		      });
+              
+              if(this.state.timer > 10 && !this.checkoutAlert){
+                this.checkoutAlert = true;
+                ToastAndroid.show("If you're done working, you can scan your basket to check out",ToastAndroid.SHORT);
+              }
+            }, 1000);
+          }
   			}else if(basketid !== requested){
   				ToastAndroid.show("Not the right Basket!", ToastAndroid.SHORT);
   			}
-  		}
+  		
         //this.setState({basket: basketid});
-    }
+      }
     //Preproduction method to tell the User what is needed for the Game to start.
     preproduce =(type, amount)=>{
       this.setState({preproduce: true, type: type, units: amount,prodInfo: 'Create Products now'});
-    };
+    }
 
     //Method to trigger the production of a specific type and amount
     produce = (type, amount) =>{
+      ToastAndroid.show('Scan your Basket now!',ToastAndroid.LONG);
       var workingState = this.state.active;
       var prodTime, prodType, prodUnit, info;
-
       workingState = true;
       prodInfo = "Scan your Basket now";
-      prodTime = 0    
-      prodType = type
-      prodUnits = amount
+      prodTime = 0;   
+      prodType = type;
+      prodUnits = amount;
       this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
-
       this._startDetection();
-
-    
     }
 
     reportWorkingState = () => {
@@ -114,7 +123,7 @@ class WorkLoad extends Component {
         this.setState({preproduce:false, type: '', units: ''});
         //Signal Parent that you're done, so the Server also can know.
         this.props.callbackParent({id: 'preproductionFin', name: global.name});
-
+      /*
       }else{
     		var workingState = this.state.active;
     		var prodTime, prodType, prodUnit, info;
@@ -137,6 +146,7 @@ class WorkLoad extends Component {
     			clearInterval(this.incrementer);
     		
         }
+        */
       }
   		//Debug#
   		//this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
@@ -146,7 +156,7 @@ class WorkLoad extends Component {
 
   	render(){
   		let {timer, type, units, active, info} = this.state;
-		return(
+		  return(
 		<View style={ppstyle.WorkOrderWrapper}>
       <View style={ppstyle.contentWorkOrder}>
 			
@@ -219,7 +229,7 @@ class WorkLoad extends Component {
             global.time += this.state.time;
             global.amount += this.state.units;
             this.productFinished();
-            this.setState({timer: '', type: '', units:'', working:false, info: 'Wait for next order'});
+            this.setState({timer: 0, type: '', units:'',active:false, working:false, info: 'Wait for next order'});
           } 
         }
       

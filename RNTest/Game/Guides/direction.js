@@ -17,18 +17,16 @@ class Directions extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			path:''
+			path:'',
 		}
+        this.path = '';
 		console.log("App: Component recieved following Props: " + this.props.type);
     }
 
     setImagePath(){
-    	let t = this.props.type.substring(0,2);
-    	let num = this.props.type.substring(1,2);
-    	//console.log("App: " + t + "--" + num);
-    	let imgpath;
-
-    	switch(t){
+    	let productID = this.props.type
+        //this.setState({product:productID});
+    	switch(productID){
     		case "A0":
     			imgpath = require('../../img/ws1.png');
     			break;
@@ -58,16 +56,20 @@ class Directions extends Component {
     			break;
     	}
     	//console.log("App: CWR: ImagePath for Guide is: " + imgpath);
-    	path = imgpath;
+    	this.path = imgpath;
+        //this.setState({path:imgpath});
 
     }
 
     componentWillMount(){
     	this.setImagePath();
     }
-
+    componentWillUnmount(){
+        this.path = '';
+        //this.setState({product:''});
+    }
     shouldComponentUpdate(){
-    	this.setImagePath();
+    	//this.setImagePath();
     }
 
     render(){
@@ -75,7 +77,7 @@ class Directions extends Component {
     	//console.log("App Directions-Render : " + img);
     	return(
     	<View>
-    		<Image style={{width:400,height:100}} source={path} resizeMode="contain"></Image>
+    		<Image style={{width:400,height:100}} source={this.path} resizeMode="contain"></Image>
     	</View>
     	);
     }

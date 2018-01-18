@@ -31,8 +31,8 @@ class GameView extends Component {
     //Set up Global for Time and Produced Amount for Time per production
     global.time = 0;
     global.amount = 0;
-    var queue = [];
-    var queuelength;
+    this.queue = [];
+    this.queuelength;
     //Create SocketInstance with BaseURL, defined Transport and Timeout.
     this.socket = SocketIOClient(baseUrl, {transports: ['websocket'], timeout: 2000});
     console.log('SocketIO: Creating Websocket Connection on: ' + baseUrl);
@@ -64,21 +64,21 @@ class GameView extends Component {
       this.setState({running:false});
 
     }else if(dataFromChild.id == "productFin"){
+
       this.socket.emit('productionfinished', {machine: global.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount});  
-      if(queuelength >= 1){
-        console.log('App: First in Queue is ' + queue[0].product + "//" + queue[0].amount);
-        var firstInQueue = queue.shift();
+      if(this.queuelength >= 1){
+        console.log('App: First in this.queue is ' + this.queue[0].product + "/" + this.queue[0].amount);
+        var firstInQueue = this.queue.shift();
         console.log('App: elected first in Queue' + firstInQueue.product + "/" + firstInQueue.amount);
-        console.log('App: Queuelength' + queuelength + 'productionstate: ' + this.state.producing);
+        console.log('App: Queuelength' + this.queuelength + 'productionstate: ' + this.state.producing);
+
         try{
           this.refs.wl.produce(firstInQueue.product,firstInQueue.amount);
+          this.setState({producing:true});
         }catch(err){
 
         }
-        queuelength--;
-        if(queuelength == 0){
-          this.setState({producing:false});
-        }
+        this.queuelength--;
       }else{
         this.setState({producing:false});
       }
@@ -128,7 +128,8 @@ class GameView extends Component {
       if(data.machine === global.name){
         this.setState({running:true});
         try{
-        this.refs.wl.preproduce(data.type, data.amount);
+          ToastAndroid.show('Prepare your products now, please!',ToastAndroid.SHORT);
+          this.refs.wl.preproduce(data.type, data.amount);
         }catch(err){
 
         }
@@ -149,8 +150,8 @@ class GameView extends Component {
 
           }
           }else{
-            queue.push({product: data.product,amount: data.amount});
-            queuelength++;
+            this.queue.push({product: data.product,amount: data.amount});
+            this.queuelength++;
             ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
             console.log('App: A Workorder has been added to the queue');
           }
@@ -160,10 +161,12 @@ class GameView extends Component {
     this.socket.on('appReset', (data) => {
       this.setState({running:false, producing: false});
       try{
-      this.refs.wl.reset();
-      }catch(err){}
-      queuelength = 0;
-      queue = [];
+        this.refs.wl.reset();
+      }catch(err){
+
+      }
+      this.queuelength = 0;
+      this.queue = [];
       global.time = 0;
       global.amount = 0;
       global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};
