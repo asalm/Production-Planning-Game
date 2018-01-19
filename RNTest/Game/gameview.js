@@ -14,6 +14,8 @@ import {WorkLoad} from './workload.js';
 import SocketIOClient from 'socket.io-client';
 import renderIf from '../renderIf.js';
 
+
+//To connect to annother server, just change this IP to the destination you want to reach
 var baseUrl = 'http://172.104.229.28:8000'
 const PRIVATE_CHANNEL = 'ppc-game-communication-broadcast';
 
@@ -54,7 +56,7 @@ class GameView extends Component {
   }
   componentWillUnmount(){
   }
-  //dataFromChild.id => Type of workloadAnswer (status, preproductionFin,)
+  //dataFromChild.id => Type of workloadAnswer (preproductionFin, productionfinished, prodStart)
   //dataFromChild.time => How much dime it took the machine to create given Workorder
   //dataFromChild.status => Answer if the Machine is currently working or not.
   workloadAnswers = (dataFromChild) => {
@@ -68,13 +70,14 @@ class GameView extends Component {
       this.socket.emit('productionfinished', {machine: global.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount});  
       if(this.queuelength >= 1){
         console.log('App: First in this.queue is ' + this.queue[0].product + "/" + this.queue[0].amount);
-        var firstInQueue = this.queue.shift();
-        console.log('App: elected first in Queue' + firstInQueue.product + "/" + firstInQueue.amount);
-        console.log('App: Queuelength' + this.queuelength + 'productionstate: ' + this.state.producing);
+        //var firstInQueue = this.queue.shift();
+        //console.log('App: elected first in Queue' + firstInQueue.product + "/" + firstInQueue.amount);
+        console.log('App: Queuelength is: ' + this.queuelength + ' // productionstate: ' + this.state.producing);
 
         try{
-          this.refs.wl.produce(firstInQueue.product,firstInQueue.amount);
+          this.refs.wl.produce(this.queue[0].product,this.queue[0].amount);
           this.setState({producing:true});
+          this.queue.shift();
         }catch(err){
 
         }
@@ -87,23 +90,13 @@ class GameView extends Component {
     }
   }
 
-  endEverything = () => {
-    this.socket.emit('checkout', {name: "machine1"});
-    this.socket.disconnect();
-  }
   //This function initialises the responsive Listeners and starts the Timer for
   //a ping event to retrieve machine-status every second.
   startListeners(){
-    //Only one Machine, in our Case Machine 1 has to keep the emits, otherwise this will cause
-    //unnessessary Traffic since 5 people are asking for the same broadcast at nearly the same time
-    /*if(global.name === "machine1"){
-      this.pings = setInterval(() => {
-        this.socket.emit('whoworkin');
-      },1000);
-    }*/
     this.socket.on('running', ()=>{
       this.setState({running:true});
     });
+    //Sets the small boxes to specific colors
     this.socket.on('mStatus', function(data){
     	global.workingState.machine1 = data.number1;
     	global.workingState.machine2 = data.number2;
@@ -135,10 +128,12 @@ class GameView extends Component {
         }
       }
     });
+    //Gamemode is currently emtpy
     this.socket.on('ready', function(data){
       global.gamemode = data.gametype;
       this.setState({running: true});
     });
+    //This causes a production to be started
     this.socket.on('produce', (data)=>{
       if(this.state.running){
     	 if(data.machine === global.name){
@@ -158,6 +153,8 @@ class GameView extends Component {
        }
       }
     });
+
+    //Resets all used parameters from gameview.js and workload.js
     this.socket.on('appReset', (data) => {
       this.setState({running:false, producing: false});
       try{

@@ -25,7 +25,6 @@ class Directions extends Component {
 
     setImagePath(){
     	let productID = this.props.type
-        //this.setState({product:productID});
     	switch(productID){
     		case "A0":
     			imgpath = require('../../img/ws1.png');
@@ -55,9 +54,8 @@ class Directions extends Component {
     			console.log('unable to determine which resource needs to be loaded');
     			break;
     	}
-    	//console.log("App: CWR: ImagePath for Guide is: " + imgpath);
     	this.path = imgpath;
-        //this.setState({path:imgpath});
+        console.log("App Directions-Render : " + this.path);
 
     }
 
@@ -66,15 +64,11 @@ class Directions extends Component {
     }
     componentWillUnmount(){
         this.path = '';
-        //this.setState({product:''});
     }
     shouldComponentUpdate(){
-    	//this.setImagePath();
     }
 
     render(){
-    	//const img = path;
-    	//console.log("App Directions-Render : " + img);
     	return(
     	<View>
     		<Image style={{width:400,height:100}} source={this.path} resizeMode="contain"></Image>

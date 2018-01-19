@@ -18,9 +18,10 @@ class GameState extends Component {
     }
   
   componentDidMount(){
-    this.setState({gamemode: global.gamemode});
-    console.log("App: " + this.gamemode);
-
+    if(global.gamemode != ''){
+      this.setState({gamemode: global.gamemode});
+      console.log('App: ' + this.gamemode);
+    }
     this.refs.m1.setName("machine 1");
     this.refs.m2.setName("machine 2");
     this.refs.m3.setName("machine 3");

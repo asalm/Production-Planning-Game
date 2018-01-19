@@ -50,7 +50,9 @@ class Landing extends React.Component {
 		}
 	}
 
-
+	openHowTo = () => {
+		ToastAndroid.show('Head to http://www.ppg-game.fhstp.ac.at for further instructions.',ToastAndroid.SHORT);
+	}
 
 	async fetchAndVerify(){
 		let {navigate} = this.props.navigation;
@@ -145,7 +147,7 @@ class Landing extends React.Component {
 
         </View>
          <View style={ppstyle.footer}>
-	        	<Text style={ppstyle.footerText}>v1.01 - European Project Semester 2017/2018</Text>
+	        	<Text style={ppstyle.footerText}>v1.02 - European Project Semester 2017/2018</Text>
 	        	<TouchableOpacity
 	        		style={{top:10,left:670}}
 	        		onPress={() => this.openHowTo()}>

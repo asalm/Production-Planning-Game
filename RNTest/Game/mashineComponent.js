@@ -6,6 +6,8 @@ import {
   View
 } from 'react-native';
 
+//this controls the boxes on top of the screen showing weather a machine is working or not!!
+
 class MashineComponent extends Component {
 
 	constructor(props) {
@@ -15,7 +17,6 @@ class MashineComponent extends Component {
             running: 0,
             backColor: '#FFFFFF',
         }
-        //this.checkForActivity();
     }
 
     setName(namestring){
@@ -35,17 +36,7 @@ class MashineComponent extends Component {
                 break;
         }
     }
-        /*
-        this.setState({running: activity});
-        this.checkForActivity();
-        */
-    
-
-    /*
-    componentWillMount(){
-    	//this.checkForActivity();
-    }
-    */
+       
     checkForActivity(){
     	switch(this.state.running) {
     		case 0:
