@@ -70,20 +70,19 @@ class WorkLoad extends Component {
     this.props.callbackParent({id:'productFin',name: global.name,time: this.state.timer,product:this.state.type, amount: this.state.units});
   }
 	updateBasketState = (nfctag) => {
-    this.props.callbackParent({id:'prodStart',amount:this.state.units,product:this.state.type});
-
 		var requested = this.state.type;
 		var workingState = this.state.working;
     var basketid = this.convertTagtoChar(nfctag);
         if(this._mounted){
         	if(basketid === requested){
+            this.props.callbackParent({id:'prodStart',amount:this.state.units,product:this.state.type});
         		this.setState({working: true, info: "Start Producing"}); 
   	  			this.incrementer = setInterval( () =>	{	
     		  		this.setState({
     		       		timer: this.state.timer + 1
     		      });
               
-              if(this.state.timer > 10 && !this.checkoutAlert){
+              if(this.state.timer > 6 && !this.checkoutAlert){
                 this.checkoutAlert = true;
                 ToastAndroid.show("If you're done working, you can scan your basket to check out",ToastAndroid.SHORT);
               }
@@ -103,14 +102,14 @@ class WorkLoad extends Component {
     //Method to trigger the production of a specific product and amount
     produce = (type, amount) =>{
       ToastAndroid.show('Scan your Basket now!',ToastAndroid.LONG);
-      var workingState = this.state.active;
+      //var workingState = this.state.active;
       var prodTime, prodType, prodUnit, info;
-      workingState = true;
+      //workingState = true;
       prodInfo = "Scan your Basket now";
       prodTime = 0;   
       prodType = type;
       prodUnits = amount;
-      this.setState({timer: prodTime, type: prodType, units: prodUnits, active: workingState, info: prodInfo});
+      this.setState({timer: prodTime, type: prodType, units: prodUnits, active: true, info: prodInfo});
       this._startDetection();
     }
     //This is used to check if workload is currently active.
@@ -154,7 +153,7 @@ class WorkLoad extends Component {
           */}
           <View style={ppstyle.directionsBox}>
             {renderIf(this.state.working,
-            <Directions type={this.state.type}></Directions>
+            <Directions type={this.state.product}></Directions>
             )}
           </View>
     		</View>
@@ -181,14 +180,18 @@ class WorkLoad extends Component {
       })
     }
     _onTagDiscovered = tag => {
-      console.log('Tag Discovered', tag);
+      console.log('App: Discovered Basket with' + tag);
       
-      if(this.state.working === false){
+      if(!this.state.working){
+        console.log('App: User checked in');
         //global.workingState[global.name] = 2;
         this.updateBasketState(tag);
       }else{
         let tagID = this.convertTagtoChar(tag);
-        if(tagID === this.state.type){
+        //since its unrealistic to finish something in less then 6 seconds we use the checkoutAlert value
+        //to also be true for the Detection to stup again.
+        if(tagID === this.state.type && this.state.working && this.checkoutAlert){
+          console.log('App: User checked out');
           this._stopDetection();
           clearInterval(this.incrementer);
           global.time += this.state.time;

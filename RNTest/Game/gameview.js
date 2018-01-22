@@ -10,7 +10,7 @@ import "../UserAgent";
 //Importing Sub-Modules
 import {ppstyle} from '../style.js';
 import {GameState} from './gamestate.js';
-import {WorkLoad} from './workload.js';
+import {WorkLoad} from './workload2.js';
 import SocketIOClient from 'socket.io-client';
 import renderIf from '../renderIf.js';
 
@@ -55,6 +55,18 @@ class GameView extends Component {
     //this.refs.wl.preproduce('C0',8);
   }
   componentWillUnmount(){
+    this.setState({running:false, producing: false});
+      try{
+        this.refs.wl.reset();
+      }catch(err){
+
+      }
+      this.queuelength = 0;
+      this.queue = [];
+      global.time = 0;
+      global.amount = 0;
+      global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};
+      console.log('App: SERVER RESETTED');
   }
   //dataFromChild.id => Type of workloadAnswer (preproductionFin, productionfinished, prodStart)
   //dataFromChild.time => How much dime it took the machine to create given Workorder
@@ -66,27 +78,13 @@ class GameView extends Component {
       this.setState({running:false});
 
     }else if(dataFromChild.id == "productFin"){
+      this.setState({producing:false});
+      console.log('App: Production Finished for '+dataFromChild.product + " with " + dataFromChild.amount);
 
       this.socket.emit('productionfinished', {machine: global.name, time: dataFromChild.time, product: dataFromChild.product, amount: dataFromChild.amount});  
-      if(this.queuelength >= 1){
-        console.log('App: First in this.queue is ' + this.queue[0].product + "/" + this.queue[0].amount);
-        //var firstInQueue = this.queue.shift();
-        //console.log('App: elected first in Queue' + firstInQueue.product + "/" + firstInQueue.amount);
-        console.log('App: Queuelength is: ' + this.queuelength + ' // productionstate: ' + this.state.producing);
-
-        try{
-          this.refs.wl.produce(this.queue[0].product,this.queue[0].amount);
-          this.setState({producing:true});
-          this.queue.shift();
-        }catch(err){
-
-        }
-        this.queuelength--;
-      }else{
-        this.setState({producing:false});
-      }
     }else if(dataFromChild.id === 'prodStart'){
       this.socket.emit('productionStarted',{machine:global.name, product:dataFromChild.product,amount:dataFromChild.amount});
+      console.log('App: Production started for ' + dataFromChild.product + ' with ' + dataFromChild.amount);
     }
   }
 
@@ -137,18 +135,10 @@ class GameView extends Component {
     this.socket.on('produce', (data)=>{
       if(this.state.running){
     	 if(data.machine === global.name){
-        if(!this.state.producing){
-          try{
+          try{       
     	      this.refs.wl.produce(data.product,data.amount);
-            this.setState({producing:true});
           }catch(err){
 
-          }
-          }else{
-            this.queue.push({product: data.product,amount: data.amount});
-            this.queuelength++;
-            ToastAndroid.show('A Workorder was added to the Queue',ToastAndroid.SHORT);
-            console.log('App: A Workorder has been added to the queue');
           }
        }
       }
@@ -162,8 +152,6 @@ class GameView extends Component {
       }catch(err){
 
       }
-      this.queuelength = 0;
-      this.queue = [];
       global.time = 0;
       global.amount = 0;
       global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};

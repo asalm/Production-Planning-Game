@@ -10,21 +10,21 @@ import {
 import {ppstyle} from '../../style.js';
 import renderIf from '../../renderIf.js';
 
-let path = '../../img/'
-
 class Directions extends Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			path:'',
-		}
+        this.state = {
+            active: false
+        }
         this.path = '';
-		console.log("App: Component recieved following Props: " + this.props.type);
+        this.productID;
+		console.log("App: Component recieved following Props: " + this.props.product);
     }
 
     setImagePath(){
-    	let productID = this.props.type
+    	productID = this.props.product
+        var imgpath;
     	switch(productID){
     		case "A0":
     			imgpath = require('../../img/ws1.png');
@@ -54,8 +54,9 @@ class Directions extends Component {
     			console.log('unable to determine which resource needs to be loaded');
     			break;
     	}
+        this.setState({active:true});
     	this.path = imgpath;
-        console.log("App Directions-Render : " + this.path);
+        console.log("App: Directions rendered " + productID + ".. with path " + this.path);
 
     }
 
@@ -63,9 +64,18 @@ class Directions extends Component {
     	this.setImagePath();
     }
     componentWillUnmount(){
-        this.path = '';
+        this.setState({active:false});
+        this.path = null;
     }
     shouldComponentUpdate(){
+        if(this.state.active && (this.path = null))
+        {
+            console.log("App: Directions rerendered");
+            this.setImagePath();
+        //in case, the component didnt render properly, repeat the step
+        }else if(!this.state.active && productID != this.props.product){
+            this.setImagePath();
+        }
     }
 
     render(){

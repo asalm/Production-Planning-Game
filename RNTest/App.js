@@ -142,12 +142,21 @@ class Landing extends React.Component {
 				onPress={() => this._onLoginPress()}>
 					<Text style={ppstyle.touchableText}>Log In</Text>
 	        </TouchableOpacity>
+	        {/*
+	        <Image style={{width:400,height:100}} source={require('./img/ws1.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws2.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws3.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws40.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws41.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws50.png')} resizeMode="contain"></Image>
+	        <Image style={{width:400,height:100}} source={require('./img/ws51.png')} resizeMode="contain"></Image>
+			*/}
 
 	       
 
         </View>
          <View style={ppstyle.footer}>
-	        	<Text style={ppstyle.footerText}>v1.02 - European Project Semester 2017/2018</Text>
+	        	<Text style={ppstyle.footerText}>v1.08 - European Project Semester 2017/2018</Text>
 	        	<TouchableOpacity
 	        		style={{top:10,left:670}}
 	        		onPress={() => this.openHowTo()}>
