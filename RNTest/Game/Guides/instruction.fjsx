@@ -1,0 +1,57 @@
+import React, { Component } from 'react';
+import {
+  Platform,
+  Button,
+  Text,
+  View,
+  Image,
+  ToastAndroid
+} from 'react-native';
+import {ppstyle} from '../../style.js';
+
+class Instructions extends Component {
+
+	constructor(props) {
+		super(props);
+
+	}
+
+	render(){
+		return(
+		<Text style={ppstyle.productionText}>
+			Workstation 1 - Cutting
+		</Text>
+		<Text style={productionInfoText}>
+			Take the raw material (paper) and produce the requested number of pieces. Conducting this working step material A0 is produced.\n\n
+MRP\n
+1. An order appears on the screen.\n
+2. Check in.\n
+3. Take the raw material (paper).\n
+4. Cut products according to the order amount.\n
+5. Check out.\n
+6. Put the products to the inventory in front of the next machine (no capacity limit).\n
+Equipment: One container to produce.\n\n
+KANBAN\n
+1. The next workstation takes the products A0 and withdraws a Kanban container.\n
+2. Check in.\n
+3. Take the raw material.\n
+4. Cut products according to the order amount.\n
+5. Check out.\n
+6. Fill the Kanban container with the produced products.\n
+Equipment: Default setting is the number of Kanban containers according to the defined Kanbans per product to work and store the products. The Kanban container are withdrawn from the next workstation.
+\n\nCONWIP\n
+1. The requested final product will appear in the screen.\n
+2. Take the labelled container.\n
+3. Check in.\n
+4. Take the raw material.\n
+5. Cut products according to the order amount.\n
+6. Check out.\n
+7. Put the container together with the pieces to the next workstation.\n
+8. Check the screen of the website for the next order.\n\n
+Equipment: The container with the customer order information is taken after production from the workstation to the next workstation.
+		</Text>
+			);
+	}
+}
+
+export {Instructions};

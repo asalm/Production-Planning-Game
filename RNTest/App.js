@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import NfcManager, {NdefParser} from 'react-native-nfc-manager';
 import {StackNavigator} from 'react-navigation';
+import GameTabs from './Game/gametab.js';
 //Own Components
 
 import {ppstyle} from './style.js';
@@ -156,7 +157,7 @@ class Landing extends React.Component {
 
         </View>
          <View style={ppstyle.footer}>
-	        	<Text style={ppstyle.footerText}>v1.08 - European Project Semester 2017/2018</Text>
+	        	<Text style={ppstyle.footerText}>v1.10 - European Project Semester 2017/2018</Text>
 	        	<TouchableOpacity
 	        		style={{top:10,left:670}}
 	        		onPress={() => this.openHowTo()}>
@@ -175,8 +176,7 @@ class Game extends React.Component{
   };
   render(){
     return(
-    <GameView>
-    </GameView>
+    <GameTabs></GameTabs>
       );
   }
 }

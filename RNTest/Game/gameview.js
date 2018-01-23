@@ -33,8 +33,7 @@ class GameView extends Component {
     //Set up Global for Time and Produced Amount for Time per production
     global.time = 0;
     global.amount = 0;
-    this.queue = [];
-    this.queuelength;
+
     //Create SocketInstance with BaseURL, defined Transport and Timeout.
     this.socket = SocketIOClient(baseUrl, {transports: ['websocket'], timeout: 2000});
     console.log('SocketIO: Creating Websocket Connection on: ' + baseUrl);
@@ -55,14 +54,12 @@ class GameView extends Component {
     //this.refs.wl.preproduce('C0',8);
   }
   componentWillUnmount(){
-    this.setState({running:false, producing: false});
       try{
+        this.setState({running:false, producing: false});
         this.refs.wl.reset();
       }catch(err){
 
       }
-      this.queuelength = 0;
-      this.queue = [];
       global.time = 0;
       global.amount = 0;
       global.workingState = {machine1: 0, machine2: 0, machine3: 0, machine4: 0, machine5: 0};
@@ -104,8 +101,8 @@ class GameView extends Component {
     });
     this.socket.on('gamefinish', function(data){
       var tpp = global.amount / global.time;
-      this.socket.emit('tpp', {tppAmount: global.amount,tppTime: global.time,name:global.name});
       try{
+      this.socket.emit('tpp', {tppAmount: global.amount,tppTime: global.time,name:global.name});
       this.refs.wl.reset();
       }catch(err){
 
@@ -146,8 +143,8 @@ class GameView extends Component {
 
     //Resets all used parameters from gameview.js and workload.js
     this.socket.on('appReset', (data) => {
-      this.setState({running:false, producing: false});
       try{
+        this.setState({running:false, producing: false});
         this.refs.wl.reset();
       }catch(err){
 
@@ -179,4 +176,5 @@ class GameView extends Component {
 		);
   }
 }
+
 export {GameView};

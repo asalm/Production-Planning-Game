@@ -97,18 +97,7 @@ class WorkLoad extends Component {
     		produce(this.queue[0].product,this.queue[0].amount);
     	}
   	}
-  	/*
-	updateBasketState = (nfctag) => {
-		var requested = this.state.type;
-		var workingState = this.state.working;
-    	var basketid = this.convertTagtoChar(nfctag);
-        if(this._mounted){
-        	if(basketid === requested){
-            
-  		
-        //this.setState({basket: basketid});
-      }
-    */
+
     //Preproduction method to tell the User what is needed for the Game to start.
     preproduce =(type, amount)=>{
       this.setState({preproduce: true, product: type, amount: amount,prodInfo: 'Create Products now'});
@@ -116,7 +105,7 @@ class WorkLoad extends Component {
 
     //Method to trigger the production of a specific product and amount
     produce = (type, amount) =>{
-    	if(this.state.working){
+    	if(this.state.working || this.detectMode){
     		this.queue.push({product:type, amount:amount});
 
     		//Console for Queue and whats inside
@@ -199,7 +188,7 @@ class WorkLoad extends Component {
       })
     }
     _onTagDiscovered = tag => {
-
+      try{
         var tagID = this.convertTagtoChar(tag);
         //var woInProgress = false;
         console.log('App: Discovered Basket with ' + tagID);
@@ -231,6 +220,7 @@ class WorkLoad extends Component {
         }else{
         	console.log('App: This Case is uncaught.');
         }
+      }catch(err){}
     }
 }
 

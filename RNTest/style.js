@@ -95,6 +95,11 @@ const ppstyle = StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'row'
 	},
+	instructionBox: {
+		marginLeft:20,
+		marginTop:20,
+		width: width - 20,
+	},
 	waitingText: {
 		fontSize: 60,
 		width:600,
